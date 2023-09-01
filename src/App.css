@@ -1,0 +1,75 @@
+.bg {
+  animation: slide 2s ease-in-out infinite alternate;
+  background-image: linear-gradient(-60deg, #90c63d 50%, #fd8014 50%);
+  bottom: 0;
+  left: -50%;
+  opacity: 0.5;
+  position: fixed;
+  right: -50%;
+  top: 0;
+  z-index: -1;
+}
+
+a {
+  font-size: 1.5rem;
+  color: #1e4160;
+  text-decoration: inherit;
+}
+
+.bg2 {
+  animation-direction: alternate-reverse;
+  animation-duration: 4s;
+}
+
+.bg3 {
+  animation-duration: 5s;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(-25%);
+  }
+  100% {
+    transform: translateX(25%);
+  }
+}
+
+button:disabled,
+button[disabled] {
+  background-color: #3b75a8;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  
+}
+
+button {
+  background-color: #1e4160;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+.social-button {
+  padding: 5px;
+  border: transparent;
+  background-color: transparent;
+  color: #1e4160;
+  font-size: 40px;
+}
+
+

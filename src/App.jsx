@@ -8,64 +8,70 @@ import {
   RadioGroup,
   Stack,
   Typography,
+  TextField,
 } from "@mui/material";
+import useMediaQuery from "@mui/material/useMediaQuery";
 import "./App.css";
 import logo from "./assets/logo.png";
 import Dropdown from "react-dropdown";
 import "react-dropdown/style.css";
 import db from "./config";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  refEqual,
-  where,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 
 function App() {
   const [department, setDepartment] = useState("");
   const [dep, setDep] = useState("");
   const [register, setRegister] = useState(false);
   const [quota, setQuota] = useState("");
+  const matches = useMediaQuery("(min-width:700px)");
+  const [submitted] = useState(
+    JSON.parse(localStorage.getItem("submitted") ?? null) ?? null
+  );
 
   const options = [
-    "Computer Science & Engineering (CSE)",
-    "Electrical & Electronics Engineering (EEE)",
-    "Electronics & Communication Engineering (ECE)",
-    "Mechanical Engineering (MEC)",
-    "Civil Engineering (CIV)",
-    "Computer Science & Engineering-Cyber Security (CSC)",
-    "Computer Science & Engineering-Data Science (CSD)",
-    "Computer Science & Engineering- AI & ML (CSM)",
+    "Computer Science & Engineering (CSE) (FN)",
+    "Electrical & Electronics Engineering (EEE) (AN)",
+    "Electronics & Communication Engineering (ECE) (AN)",
+    "Mechanical Engineering (MEC) (AN)",
+    "Civil Engineering (CIV) (AN)",
+    "Computer Science & Engineering-Cyber Security (CSC) (FN)",
+    "Computer Science & Engineering-Data Science (CSD) (FN)",
+    "Computer Science & Engineering- AI & ML (CSM) (FN)",
   ];
 
   var sdp = "";
   const _handleDepartment = (e) => {
     const d = e.value;
     setDepartment(d);
-    if (d === "Computer Science & Engineering (CSE)") {
+    if(d === options[0]){
       setDep("CSE");
       sdp = "cse";
-    } else if (d === "Electrical & Electronics Engineering (EEE)") {
+    }
+    else if(d === options[1]){
       setDep("EEE");
       sdp = "eee";
-    } else if (d === "Electronics & Communication Engineering (ECE)") {
-      setDep("EEE");
+    }
+    else if(d === options[2]){
+      setDep("ECE");
       sdp = "ece";
-    } else if (d === "Mechanical Engineering (MEC)") {
+    }
+    else if(d === options[3]){
       setDep("MECH");
       sdp = "mech";
-    } else if (d === "Civil Engineering (CIV)") {
+    }
+    else if(d === options[4]){
       setDep("CIVIL");
       sdp = "civil";
-    } else if (d === "Computer Science & Engineering-Cyber Security (CSC)") {
+    }
+    else if(d === options[5]){
       setDep("CSC");
       sdp = "csc";
-    } else if (d === "Computer Science & Engineering-Data Science (CSD)") {
+    }
+    else if(d === options[6]){
       setDep("CSD");
       sdp = "csd";
-    } else if (d === "Computer Science & Engineering- AI & ML (CSM)") {
+    }
+    else if(d === options[7]){
       setDep("CSM");
       sdp = "csm";
     }
@@ -80,14 +86,6 @@ function App() {
   const [dis2, setDis2] = useState(true);
   const [dis3, setDis3] = useState(true);
   const [dis4, setDis4] = useState(true);
-
-  const _handleDetails = (e) => {
-    e.preventDefault();
-    results.post("/attendance.json", list).then((response) => {
-      console.log(response);
-      alert("Data submitted successfully");
-    });
-  };
 
   const _handleFN = (e) => {
     fetch("assets/Forenoon Session Schedule.pdf").then((response) => {
@@ -141,7 +139,7 @@ function App() {
         // Setting various property values
         let alink = document.createElement("a");
         alink.href = fileURL;
-        alink.download = "assets/Rules and Regulation.pdf";
+        alink.download = "Code of Conduct.pdf";
         alink.click();
       });
     });
@@ -150,12 +148,10 @@ function App() {
     setDis4(false);
     fetch("assets/College Brochure.pdf").then((response) => {
       response.blob().then((blob) => {
-        // Creating new object of PDF file
         const fileURL = window.URL.createObjectURL(blob);
-        // Setting various property values
         let alink = document.createElement("a");
         alink.href = fileURL;
-        alink.download = "assets/College Brochure.pdf";
+        alink.download = "College Brochure.pdf";
         alink.click();
       });
     });
@@ -168,92 +164,25 @@ function App() {
 
     if (e.value == "Management Quota") {
       setQuota(e.value);
-      if (e.value === "Management Quota") {
-        if (department === "Computer Science & Engineering (CSE)") {
-          const collectionRef = collection(db, "cse");
+          const lowdep = dep.toLowerCase();
+          const collectionRef = collection(db, lowdep);
           const querySnapshot = await getDocs(collectionRef);
           const fetchedData = querySnapshot.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
           }));
+          fetchedData.sort((a, b) => a.name.localeCompare(b.name));
           setsData(fetchedData);
-        } else if (
-          department === "Electrical & Electronics Engineering (EEE)"
-        ) {
-          const collectionRef = collection(db, "eee");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        } else if (
-          department === "Electronics & Communication Engineering (ECE)"
-        ) {
-          const collectionRef = collection(db, "ece");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        } else if (department === "Mechanical Engineering (MEC)") {
-          const collectionRef = collection(db, "mech");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        } else if (department === "Civil Engineering (CIV)") {
-          const collectionRef = collection(db, "civil");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        } else if (
-          department === "Computer Science & Engineering-Cyber Security (CSC)"
-        ) {
-          const collectionRef = collection(db, "csc");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        } else if (
-          department === "Computer Science & Engineering-Data Science (CSD)"
-        ) {
-          const collectionRef = collection(db, "csd");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        } else if (
-          department === "Computer Science & Engineering- AI & ML (CSM)"
-        ) {
-          const collectionRef = collection(db, "csm");
-          const querySnapshot = await getDocs(collectionRef);
-          const fetchedData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setsData(fetchedData);
-        }
       }
-    }
-    console.log(quota);
   };
 
   const [value, setValue] = useState("");
   const [form, setForm] = useState(false);
   const handleChange = (event) => {
     setValue(event.target.value);
-    setForm((prev) => !prev);
+    // sdata.name.includes(event.target.value)
+    const snames = sdata.map((item) => item.name);
+    setForm(snames.includes(event.target.value));
   };
 
   // const [rank, setRank] = useState(0);
@@ -272,6 +201,7 @@ function App() {
       setForm(false);
       const rank = parseInt(document.getElementById("inputRank").value);
       // const rank = 36871;
+      // const dep = "CSE";
       // console.log("rank is , ", rank);
       // console.log("dep is , ", dep);
       const q = query(
@@ -304,6 +234,14 @@ function App() {
   const _handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (count > 3) {
+        alert("Maximum 3 people including student");
+        return;
+      }
+      if (sno.length !== 10 || pno.length !== 10 || isNaN(sno) || isNaN(pno)) {
+        alert("Please enter a valid 10 digit phone number");
+        return;
+      }
       const collectionRef = collection(db, "registrations"); // Replace with your collection name
       await addDoc(collectionRef, {
         sNumber: sno,
@@ -311,17 +249,87 @@ function App() {
         count: count,
         sname: value,
       });
-      console.log("Document added successfully");
+      // console.log("Document added successfully");
+      const studentData = {
+        name: value,
+        branch: quota == "Management Quota"
+                            ? department
+                            : student_r,
+        studentNumber: sno,
+        parentNumber: pno,
+        count: count,
+      };
+      localStorage.setItem("submitted", JSON.stringify(studentData));
+      location.reload();
       setSno("");
       setPno("");
       setCount(1);
       setsName("");
-
-      alert("Form Submitted");
+      alert("Details Saved Successfully");
     } catch (error) {
       console.error("Error adding document:", error);
     }
   };
+
+  const items = submitted
+    ? [
+        "Welcome to the Orientation Day for batch of 2023-27",
+        "Your Details Have Been Submitted :)",
+        "Name: " + submitted.name,
+        "Branch: " + submitted.branch,
+        "Student Number: " + submitted.studentNumber,
+        "Parent Number: " + submitted.parentNumber,
+        "Number of people attending: " + submitted.count,
+      ]
+    : null;
+
+  if (submitted) {
+    return (
+      <div
+        style={{
+          width: "100vw",
+        }}>
+        <div className="bg"></div>
+        <div className="bg bg2"></div>
+        <div className="bg bg3"></div>
+        <Container
+          sx={{
+            width: { xs: "95vw", md: "50vw" },
+            height: "auto",
+            bgcolor: "#fff",
+            top: "30px",
+          }}>
+          <img
+            src={logo}
+            width="100%"
+            style={{
+              paddingTop: "20px",
+              position: "relative",
+              marginBottom: "20px",
+            }}
+          />
+          <Stack
+            sx={{
+              paddingBottom: "20px",
+            }}>
+            {items.map((item, idx) => (
+              <Typography
+                key={idx}
+                color={"#1e4160"}
+                textAlign={"center"}
+                sx={{
+                  fontSize: { xs: "1.2rem", md: "1.3rem" },
+                  marginBottom: "20px",
+                }}
+                fontWeight={idx < 2 ? "bold" : null}>
+                {item}
+              </Typography>
+            ))}
+          </Stack>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -334,21 +342,21 @@ function App() {
       <Container
         sx={{
           width: { xs: "95vw", md: "50vw" },
-
+          // width: "auto",
           height: "auto",
           bgcolor: "#fff",
-
-          position: "absolute",
+          // position: "absolute",
           top: "30px",
-          left: { xs: "8px", md: "360px" },
-          padding: "50px",
+          // left: { xs: "25px", md: "360px" },
+          // padding: "50px",
         }}>
         <img
           src={logo}
-          width={"120%"}
+          width="100%"
           style={{
+            paddingTop: "20px",
+            // width: { xs: "95vw", md: "50vw" },
             position: "relative",
-            right: "25px",
             marginBottom: "20px",
           }}
         />
@@ -362,14 +370,12 @@ function App() {
             marginBottom: "30px",
             width: "100%",
           }}>
-          {" "}
-          Welcome to the Orientation Day <br />
-          for batch of 2023-27
+          Welcome to the Orientation Day for batch of 2023-27
         </Typography>
 
         <Stack direction={"row"}></Stack>
 
-        <Typography
+        {/* <Typography
           color={"#1e4160"}
           textAlign={"center"}
           sx={{
@@ -378,13 +384,13 @@ function App() {
           }}
           fontWeight={"bold"}>
           Choose Your Department
-        </Typography>
+        </Typography> */}
 
         <Dropdown
           className="departmentDropdown"
           options={options}
           onChange={_handleDepartment}
-          placeholder="Select an option"
+          placeholder="Select Department"
         />
         {/* <div className="dropdown">
             <input className="text-box" type="text" readOnly/>
@@ -394,12 +400,13 @@ function App() {
             </div>
         </div> */}
 
-        {department === "Computer Science & Engineering (CSE)" ? (
+        {options.includes(department) ? (
           <div
             style={{
               width: "100%",
               textAlign: "center",
               marginTop: "30px",
+              paddingBottom: !register ? "30px" : null,
             }}>
             <Typography
               sx={{
@@ -410,279 +417,31 @@ function App() {
               }}>
               Please download the files below to continue
             </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department === "Electrical & Electronics Engineering (EEE)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department === "Electronics & Communication Engineering (ECE)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department === "Mechanical Engineering (MEC)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department === "Civil Engineering (CIV)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department ===
-          "Computer Science & Engineering-Cyber Security (CSC)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department ===
-          "Computer Science & Engineering-Data Science (CSD)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
-          </div>
-        ) : department === "Computer Science & Engineering- AI & ML (CSM)" ? (
-          <div
-            style={{
-              width: "100%",
-              textAlign: "center",
-              marginTop: "30px",
-            }}>
-            <Typography
-              sx={{
-                color: "#1e4160",
-                fontSize: { xs: "1.2rem", md: "1.3rem" },
-                fontWeight: "bold",
-                marginBottom: "20px",
-              }}>
-              Please download the files below to continue
-            </Typography>
-            <a onClick={_handleFN}>Schedule of Orientation Day.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleContact}>Contact Details 2022-2023.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleRules}>Rules and Regulations.pdf </a>
-            <br />
-            <br />
-            <a onClick={_handleBrochure}>College Brochure.pdf </a>
-            <br />
-            <br />
-            <button
-              disabled={dis1 && dis2 && dis3 & dis4}
-              type="button"
-              className="btn btn-primary"
-              onClick={_handleRegister}>
-              Register
-            </button>
+            <Stack spacing={2}>
+              {/* <a
+                onClick={
+                  morningBatch.includes(department) ? _handleFN : _handleAN
+                }>
+                Schedule of Orientation Day.pdf{" "}
+              </a> */}
+              <a onClick={_handleContact}>Contact Details 2023-2024.pdf </a>
+              <a onClick={_handleRules}>Code of Conduct.pdf </a>
+              <a className="p-2" onClick={_handleBrochure}>
+                College Brochure.pdf
+              </a>
+            </Stack>
+            {!(dis1 && dis2 && dis3 & dis4) && (
+              <button
+                style={{
+                  marginTop: "30px",
+                }}
+                disabled={dis1 && dis2 && dis3 & dis4}
+                type="button"
+                className="btn btn-primary"
+                onClick={_handleRegister}>
+                Register
+              </button>
+            )}
           </div>
         ) : (
           <br />
@@ -695,7 +454,7 @@ function App() {
             }}>
             <Dropdown
               options={["Convener Quota", "Management Quota"]}
-              placeholder="Select an option"
+              placeholder="Select Admission Quota"
               onChange={_handleQuota}
             />
 
@@ -748,22 +507,43 @@ function App() {
               </div>
             ) : quota == "Convener Quota" ? (
               <>
-                <div>
-                  <h3>Convener Quota</h3>
-                  <label>Please Enter Your Rank: </label>
+                <div
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: "30px",
+                  }}>
+                  <Typography
+                    color={"#1e4160"}
+                    textAlign={"center"}
+                    fontSize={"1.5rem"}
+                    fontWeight={"bold"}>
+                    Convener Quota
+                  </Typography>
                   <br />
                   <input
+                    style={{
+                      width: "60%",
+                      padding: "10px",
+                      borderRadius: "10px",
+                      border: "1px solid #ccc",
+                      backgroundColor: "#fff",
+                      boxShadow: "0 0 10px #ccc",
+                      WebkitBorderRadius: "4px",
+                      boxSizing: "border-box",
+                    }}
                     type="text"
-                    // value={rankToFetch}
-                    // onChange={(e) => setRankToFetch(e.target.value)}
-                    placeholder="rank"
+                    placeholder="Please Enter Your Rank:"
                     id="inputRank"
                   />
                   <br />
                   <br />
                   <button
                     type="button"
-                    class="btn btn-primary"
+                    className="btn btn-primary"
                     onClick={fetchStudent}>
                     Get Details
                   </button>
@@ -820,9 +600,7 @@ function App() {
                           }}
                           color={"#1e4160"}
                           key={department}>
-                          {quota == " Management Quota"
-                            ? department
-                            : student_r}
+                          {quota == "Management Quota" ? department : student_r}
                         </Typography>
                       </Stack>
                     </Stack>
@@ -832,79 +610,71 @@ function App() {
                       color={"#1e4160"}
                       fontSize={"1.2rem"}
                       textAlign={"center"}
-                      fontWeight={"bold"}>
+                      fontWeight={"bold"}
+                      sx={{
+                        marginBottom: "20px",
+                      }}>
                       Please Fill The Details Below
                     </Typography>
 
-                    <div
+                    
+                      <form onSubmit={_handleSubmit}>
+                      <div
                       style={{
-                        width: "70vw",
+                        // width: "70vw",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
                         margin: "auto",
                       }}>
-                      <form onSubmit={_handleSubmit}>
-                        <br />
-                        <label
+
+                          <TextField
+                            style={{
+                              fontSize: "1.2rem",
+                              textAlign: "center",
+                              width: "100%",
+                              paddingBottom: "10px",
+                            }}
+                            placeholder="10 digit mobile number"
+                            onChange={(e) => setSno(e.target.value)}
+                            id="standard-basic"
+                            label="Enter Your Mobile Number"
+                            variant="standard"
+                          />
+                          <TextField
+                            style={{
+                              width: "100%",
+                              fontSize: "1.2rem",
+                              textAlign: "center",
+                              paddingBottom: "10px",
+                            }}
+                            placeholder="10 digit mobile number"
+                            onChange={(e) => setPno(e.target.value)}
+                            id="standard-basic"
+                            label="Enter Your Parent Mobile Number"
+                            variant="standard"
+                          />
+                        <TextField
                           style={{
-                            width: "85vw",
-                            marginRight: "60px",
                             fontSize: "1.2rem",
                             textAlign: "center",
-                          }}>
-                          Enter Your Mobile Number:{" "}
-                        </label>
-                        <br />
-
-                        <input
-                          type="text"
-                          placeholder="10 digit mobile number"
-                          onChange={(e) => setSno(e.target.value)}
-                        />
-                        <br />
-                        <br />
-                        <label
-                          style={{
-                            width: "85vw",
-                            marginRight: "60px",
-                            fontSize: "1.2rem",
-                            textAlign: "center",
-                          }}>
-                          Enter Your Parent Mobile Number:
-                        </label>
-                        <br></br>
-
-                        <input
-                          type="text"
-                          placeholder="10 digit mobile number"
-                          onChange={(e) => setPno(e.target.value)}
-                        />
-                        <br />
-                        <br />
-                        <label
-                          style={{
-                            width: "85vw",
-                            marginRight: "60px",
-                            fontSize: "1.2rem",
-                            textAlign: "center",
-                          }}>
-                          Number of people attending the Orientation{" "}
-                        </label>
-                        <br />
-
-                        <input
-                          type="number"
-                          placeholder="Enter the count"
+                            width: "100%",
+                          }}
+                          placeholder="Maximum 3 Including Student"
                           onChange={(e) => setCount(e.target.value)}
+                          id="standard-basic"
+                          label=" Number of People attending the Orientation Program"
+                          variant="standard"
                         />
-                        <br />
-                        <br />
-                        <button type="submit" className="btn btn-primary">
+
+                        <button style={{
+                          marginTop: "30px",
+                        }} type="submit" className="btn btn-primary">
                           Submit
                         </button>
-                      </form>
                     </div>
+
+                      </form>
                   </Stack>
                 </Stack>
               </>
